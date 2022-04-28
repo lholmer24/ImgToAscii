@@ -4,59 +4,34 @@ import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.awt.image.BufferedImage;
-import java.awt.Color;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
-        BufferedImage image = null;
+        BufferedImage image = null; //initialize image
 
-        try{
-            File imageFile = new File(args[0]);
-            image = ImageIO.read(imageFile);
-        } catch (IOException e){}
 
-        boolean invert = true;
-        int outSize = 120;
-
-        double imgWidth = image.getWidth();
-        double imgHeight = image.getHeight();
-        double outHeight = outSize;
-        double outWidth = ((imgWidth / imgHeight) * outSize);
-        double chunkWidth = (imgWidth / outWidth);
-        double chunkHeight = (imgHeight / outHeight);
-
-        String greyString = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,^\"`'. ";
-        char[] greyArray = greyString.toCharArray();
-
-        double factor = greyArray.length / 255.0;
-
-        for(int oy = 0; oy < outHeight; oy += 3){
-            for(int ox = 0; ox < outWidth; ox++){
-                double greyVal = 0;
-                for(int iy = 0; iy < chunkHeight; iy++){
-                    for(int ix = 0; ix < chunkWidth; ix++){
-                        Color c = new Color(image.getRGB(Math.min((int)(ox * chunkWidth) + ix,(int) imgWidth - 1),
-                                                    Math.min((int)(oy * chunkHeight) + iy, (int) imgHeight - 1)));
-                        if(invert){
-                            greyVal += (255 - c.getRed());
-                            greyVal += (255 - c.getGreen());
-                            greyVal += (255 - c.getBlue());
-                        } else {
-                            greyVal += c.getRed();
-                            greyVal += c.getGreen();
-                            greyVal += c.getBlue();
-                        }
-                    }
-                }
-                greyVal = greyVal / (3 * chunkHeight * chunkWidth);
-
-                int v = (int) (greyVal * factor);
-                if (v < 0){v = 0;}if (v > 69){v = 69;}
-
-                System.out.print(greyArray[v]);
-            }
-            System.out.println();
+        try {
+            File imageFile = new File("C:\\Users\\pogo3\\Downloads\\Images\\fractal.jpg");
+            image = ImageIO.read(imageFile); //import image from cmd argument
+        } catch (IOException e) {
+            System.out.println("Image not found");
         }
+
+
+        ImageAsciiConverter c = new ImageAsciiConverter();
+        c.setInvert(true);
+        c.setSize(500);
+        c.setCharHeight(2);
+        //String myImg = c.convertToAscii(image);
+        //System.out.println(myImg);
+        String myImg = Files.readString(Paths.get("C:\\Users\\pogo3\\Downloads\\Images\\statue.txt"));
+        File outputFile = new File("saved.png");
+        ImageIO.write(c.convertToImage(myImg), "png", outputFile);
+
+
     }
 }
